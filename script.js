@@ -1,3 +1,4 @@
+// Taking 25 random paragraphs to type on
 const paragraphs = [
     "He stared out the window at the snowy field. He'd been stuck in the house for close to a month and his only view of the outside world was through the window. There wasn't much to see. It was mostly just the field with an occasional bird or small animal who ventured into the field. As he continued to stare out the window, he wondered how much longer he'd be shackled to the steel bar inside the house.",
     "It wasn't supposed to end that way. The plan had been meticulously thought out and practiced again and again. There was only one possible result once it had been implemented, but as they stood there the result wasn't anything close to what it should have been. They all blankly looked at each wondering how this could have happened. In their minds, they all began to blame the other members of the group as to why they had failed.",
@@ -25,8 +26,11 @@ const paragraphs = [
     "A reptant discussion's rest comes with it the thought that the condemned syrup is a wish. The drake of a wallaby becomes a sonant harp. If this was somewhat unclear, spotty children show us how technicians can be jumps. Their honey was, in this moment, an intime direction. A ship is the lion of a hate. They were lost without the croupous jeep that composed their lily. In modern times a butcher of the birth is assumed to be a spiral bean.",
     "Those cowbells are nothing more than elements. This could be, or perhaps before stockings, thoughts were only opinions. A coil of the exclamation is assumed to be a hurtless toy. A board is the cast of a religion. In ancient times the first stinko sailboat is, in its own way, an exchange. Few can name a tutti channel that isn't a footless operation. Extending this logic, an oatmeal is the rooster of a shake. Those step-sons are nothing more than matches."
 ];
-
-let charIndx =0, mistakes=0,flag=false;
+// declaring all the necessary dom selectors and the variables needed 
+//charIndx = checking each character index when traversing thorugh each spans in paragraphs i.e chracters array
+// mmistakes = counting the mistakes
+// flag is to handle the timer to not to reset with writing every character i.e to set the timer to trigger only when the first character is written
+let charIndx =0, mistakes=0,flag=false; 
 const typing_box =document.querySelector(".typing-box p");
 const inpField =document.querySelector(".container .inp-field");
 const timer = document.querySelector(".Time-left span b"),
@@ -35,18 +39,25 @@ cpm_tag=document.querySelector(".CPM span"),
 wpm_tag=document.querySelector(".WPM span"),
 tryAgainbutton=document.querySelector("button");
 
+// all the variables for timer is taken
 let t,maxtime=60,timeleft= maxtime;
 timer.innerText=timeleft;
 
+
+// this function will generate random paragraphs
 const load_paragraph = () =>{
     let randIndx = Math.floor(Math.random()* paragraphs.length);
-    console.log(paragraphs[randIndx]);
+    // console.log(paragraphs[randIndx]);
+    // here at first the typing box is taken empty and after that from the random index taken the pragraph will be selected from paragraphs array and will be inserted into typing box
+    // span tags are taken for each character is to target the spans to fetch mistakes and cpm in future
     typing_box.innerHTML="";
     paragraphs[randIndx].split("").forEach(ch =>{
         let spanele=`<span>${ch}</span>`
         typing_box.innerHTML += spanele;
     });
+    // at first the active is used to activate the blinking cursor animation for first letter even though nothing is typed
     typing_box.querySelectorAll("span")[0].classList.add("active");
+    // keydown and click is used to trigger the input box when something is typed or clicked in typing box 
     document.addEventListener("keydown", () => inpField.focus());
     typing_box.addEventListener("click",() => inpField.focus());    
 }
@@ -56,9 +67,11 @@ load_paragraph();
 inpField.addEventListener("input",() =>{
     const characters = typing_box.querySelectorAll("span");
     let typed = inpField.value.split("")[charIndx];
+    // if the time left is equal to 0 or character length is surpassed then clear the timer and set input value to 0 so that noting could be typed 
     if(charIndx < characters.length-1 && timeleft > 0){
         if(!flag){
             t=setInterval(() =>{
+                // if time left is greater than 0 then decrement timeleft else clear timer 
                 if(timeleft>0){
                     timeleft--;
                     timer.innerText=timeleft;
@@ -71,29 +84,35 @@ inpField.addEventListener("input",() =>{
             },1000);
             flag =true;
         }
+        // if user hasnt enter any chracter or pressed backspace
         if(typed == null){
             charIndx--;
+            // decrement mistakes only if the character i.e the class index span is incorrect
             if(characters[charIndx].classList.contains("incorrect")){
                 mistakes--;
             }
             characters[charIndx].classList.remove("incorrect","correct");    
         }
         else{
+            //if user typed correctly
             if(characters[charIndx].innerText === typed){
                 characters[charIndx].classList.add("correct");
             }
             else{
+                // if user typed incorrectly then increment mistakes
                 mistakes++;
                 characters[charIndx].classList.add("incorrect");
                 // console.log("incorrect");
             }
-            charIndx++;
+            charIndx++; //increment index even its typed correct or incorrect
         }
         characters.forEach(span => span.classList.remove("active"));
         characters[charIndx].classList.add("active");
         mistake_tag.innerText=mistakes; 
+        // formula for calculating words per minute
         let wpm = Math.round((((charIndx - mistakes) / 5) / (maxtime - timeleft)) * 60);
         console.log(wpm);
+        // if wpm value is 0,empty or infinite then set its value to 0
         wpm = wpm < 0 || !wpm || wpm === Infinity ? 0 :wpm;
         wpm_tag.innerText=wpm;
         cpm_tag.innerText=charIndx - mistakes;
@@ -103,6 +122,7 @@ inpField.addEventListener("input",() =>{
         inpField.value="";
     }
 });
+//if try again button triggered it will reset all values to zero
 tryAgainbutton.addEventListener("click",()=>{
         timeleft=maxtime;
         charIndx = mistakes = flag =0;
